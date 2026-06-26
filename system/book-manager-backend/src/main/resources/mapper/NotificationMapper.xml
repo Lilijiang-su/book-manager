@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookmanager.mapper.NotificationMapper">
+
+    <resultMap id="BaseResultMap" type="Notification">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="type" property="type"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="related_id" property="relatedId"/>
+        <result column="is_read" property="isRead"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notification (user_id, type, title, content, related_id, is_read, create_time)
+        VALUES (#{userId}, #{type}, #{title}, #{content}, #{relatedId}, 0, NOW())
+    </insert>
+
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT * FROM notification WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+
+    <select id="countUnread" resultType="long">
+        SELECT COUNT(*) FROM notification WHERE user_id = #{userId} AND is_read = 0
+    </select>
+
+    <update id="markRead">
+        UPDATE notification SET is_read = 1 WHERE id = #{id}
+    </update>
+
+    <update id="markAllRead">
+        UPDATE notification SET is_read = 1 WHERE user_id = #{userId} AND is_read = 0
+    </update>
+
+</mapper>

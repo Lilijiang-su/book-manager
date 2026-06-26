@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookmanager.mapper.FineRuleMapper">
+
+    <resultMap id="BaseResultMap" type="FineRule">
+        <id column="id" property="id"/>
+        <result column="fine_per_day" property="finePerDay"/>
+        <result column="max_fine" property="maxFine"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="findActive" resultMap="BaseResultMap">
+        SELECT * FROM fine_rule WHERE status = 1 LIMIT 1
+    </select>
+
+    <update id="update">
+        UPDATE fine_rule
+        SET fine_per_day = #{finePerDay}, max_fine = #{maxFine}, status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

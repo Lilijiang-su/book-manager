@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bookmanager.mapper.BorrowRecordMapper">
+
+    <resultMap id="BaseResultMap" type="BorrowRecord">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="book_id" property="bookId"/>
+        <result column="book_name" property="bookName"/>
+        <result column="borrow_time" property="borrowTime"/>
+        <result column="due_time" property="dueTime"/>
+        <result column="return_time" property="returnTime"/>
+        <result column="status" property="status"/>
+        <result column="fine_amount" property="fineAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        WHERE br.id = #{id}
+    </select>
+
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        WHERE br.user_id = #{userId}
+        ORDER BY br.create_time DESC
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        ORDER BY br.create_time DESC
+    </select>
+
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        WHERE br.status = #{status}
+        ORDER BY br.create_time DESC
+    </select>
+
+    <select id="findWithFilters" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        <where>
+            <if test="status != null and status != ''">
+                br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY br.create_time DESC
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        <where>
+            <if test="status != null and status != ''">
+                br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY br.create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countWithFilters" resultType="long">
+        SELECT COUNT(*)
+        FROM borrow_record br
+        <where>
+            <if test="status != null and status != ''">
+                br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO borrow_record (user_id, book_id, borrow_time, due_time, status, create_time, update_time)
+        VALUES (#{userId}, #{bookId}, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'borrowing', NOW(), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE borrow_record
+        SET status = #{status}, return_time = #{returnTime}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="returnBook">
+        UPDATE borrow_record
+        SET return_time = #{returnTime}, status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="countByUserIdAndStatus" resultType="long">
+        SELECT COUNT(*) FROM borrow_record WHERE user_id = #{userId} AND status = #{status}
+    </select>
+
+</mapper>
