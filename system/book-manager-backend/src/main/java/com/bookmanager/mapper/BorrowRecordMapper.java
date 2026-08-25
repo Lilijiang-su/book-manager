@@ -11,11 +11,16 @@ import java.util.List;
 public interface BorrowRecordMapper {
     BorrowRecord findById(@Param("id") Integer id);
     List<BorrowRecord> findByUserId(@Param("userId") Integer userId);
+    List<BorrowRecord> findByUserIdAndStatus(@Param("userId") Integer userId, @Param("status") String status);
     List<BorrowRecord> findAll();
     List<BorrowRecord> findByStatus(@Param("status") String status);
     List<BorrowRecord> findWithFilters(@Param("status") String status,
                                         @Param("startDate") String startDate,
                                         @Param("endDate") String endDate);
+    List<BorrowRecord> findByUserIdAndFilters(@Param("userId") Integer userId,
+                                              @Param("status") String status,
+                                              @Param("startDate") String startDate,
+                                              @Param("endDate") String endDate);
 
     // 分页
     List<BorrowRecord> findPage(@Param("offset") int offset, @Param("limit") int limit,
@@ -25,6 +30,15 @@ public interface BorrowRecordMapper {
     long countWithFilters(@Param("status") String status,
                          @Param("startDate") String startDate,
                          @Param("endDate") String endDate);
+    List<BorrowRecord> findPageByUserId(@Param("offset") int offset, @Param("limit") int limit,
+                                        @Param("userId") Integer userId,
+                                        @Param("status") String status,
+                                        @Param("startDate") String startDate,
+                                        @Param("endDate") String endDate);
+    long countByUserIdWithFilters(@Param("userId") Integer userId,
+                                  @Param("status") String status,
+                                  @Param("startDate") String startDate,
+                                  @Param("endDate") String endDate);
 
     int insert(BorrowRecord record);
     int update(BorrowRecord record);

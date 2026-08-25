@@ -47,6 +47,10 @@
         UPDATE user SET avatar = #{avatar}, update_time = NOW() WHERE id = #{id}
     </update>
 
+    <update id="updatePassword">
+        UPDATE user SET password = #{password}, update_time = NOW() WHERE id = #{id}
+    </update>
+
     <delete id="deleteById">
         DELETE FROM user WHERE id = #{id}
     </delete>

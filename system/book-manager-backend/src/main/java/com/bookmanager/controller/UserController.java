@@ -8,6 +8,7 @@ import com.bookmanager.dto.RegisterDTO;
 import com.bookmanager.entity.User;
 import com.bookmanager.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,12 +29,12 @@ public class UserController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public Result<?> login(@RequestBody LoginDTO loginDTO) {
+    public Result<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         return Result.success(userService.login(loginDTO));
     }
 
     @PostMapping("/register")
-    public Result<?> register(@RequestBody RegisterDTO registerDTO) {
+    public Result<?> register(@Valid @RequestBody RegisterDTO registerDTO) {
         userService.register(registerDTO);
         return Result.success("注册成功");
     }

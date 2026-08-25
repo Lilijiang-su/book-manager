@@ -51,6 +51,35 @@
         ORDER BY br.create_time DESC
     </select>
 
+    <select id="findByUserIdAndStatus" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        WHERE br.user_id = #{userId} AND br.status = #{status}
+        ORDER BY br.create_time DESC
+    </select>
+
+    <select id="findByUserIdAndFilters" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        <where>
+            br.user_id = #{userId}
+            <if test="status != null and status != ''">
+                AND br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY br.create_time DESC
+    </select>
+
     <select id="findWithFilters" resultMap="BaseResultMap">
         SELECT br.*, u.name as user_name, b.name as book_name
         FROM borrow_record br
@@ -97,6 +126,45 @@
         <where>
             <if test="status != null and status != ''">
                 br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 按用户分页查询 -->
+    <select id="findPageByUserId" resultMap="BaseResultMap">
+        SELECT br.*, u.name as user_name, b.name as book_name
+        FROM borrow_record br
+        LEFT JOIN user u ON br.user_id = u.id
+        LEFT JOIN book b ON br.book_id = b.id
+        <where>
+            br.user_id = #{userId}
+            <if test="status != null and status != ''">
+                AND br.status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND br.borrow_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND br.borrow_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY br.create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByUserIdWithFilters" resultType="long">
+        SELECT COUNT(*)
+        FROM borrow_record br
+        <where>
+            br.user_id = #{userId}
+            <if test="status != null and status != ''">
+                AND br.status = #{status}
             </if>
             <if test="startDate != null and startDate != ''">
                 AND br.borrow_time >= #{startDate}

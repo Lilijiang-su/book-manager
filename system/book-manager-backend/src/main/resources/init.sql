@@ -90,10 +90,12 @@ CREATE TABLE IF NOT EXISTS `fine_rule` (
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 默认用户
+-- 默认用户（密码已使用 BCrypt 哈希存储）
+-- admin / admin123
+-- zhangsan / 123456
 INSERT IGNORE INTO `user` (`username`, `password`, `name`, `role`, `status`) VALUES
-('admin', 'admin123', '系统管理员', 'admin', 1),
-('zhangsan', '123456', '张三', 'user', 1);
+('admin', '$2b$12$vvi154kVC2/BmsR4DEvDLeEc3S.Nq2izmeKnuKivGkUfnukjmfHdK', '系统管理员', 'admin', 1),
+('zhangsan', '$2b$12$vu/Cz4SOr2qhNBLWCsPGp./1hpwSsz858X1tvdbodBDrL853bcGrO', '张三', 'user', 1);
 
 -- 图书分类
 INSERT IGNORE INTO `category` (`id`, `name`, `description`, `sort_order`, `status`) VALUES

@@ -59,9 +59,21 @@ public class BorrowService {
 
     @Transactional
     public void returnBook(Integer recordId) {
+        returnBook(recordId, null, null);
+    }
+
+    /**
+     * 还书，带权限校验：普通用户只能归还自己的借阅记录。
+     */
+    @Transactional
+    public void returnBook(Integer recordId, String role, Integer currentUserId) {
         BorrowRecord record = borrowRecordMapper.findById(recordId);
         if (record == null) {
             throw new RuntimeException("记录不存在");
+        }
+        // 非管理员只能归还自己的记录
+        if (!"admin".equals(role) && currentUserId != null && !record.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("无权操作他人的借阅记录");
         }
         LocalDateTime now = LocalDateTime.now();
         boolean isOverdue = now.isAfter(record.getDueTime());
@@ -91,6 +103,22 @@ public class BorrowService {
 
     public List<BorrowRecord> findByUserId(Integer userId) {
         return borrowRecordMapper.findByUserId(userId);
+    }
+
+    public List<BorrowRecord> findByUserIdAndStatus(Integer userId, String status) {
+        return borrowRecordMapper.findByUserIdAndStatus(userId, status);
+    }
+
+    public List<BorrowRecord> findByUserIdAndFilters(Integer userId, String status, String startDate, String endDate) {
+        return borrowRecordMapper.findByUserIdAndFilters(userId, status, startDate, endDate);
+    }
+
+    public List<BorrowRecord> findPageByUserId(Integer userId, int page, int pageSize, String status, String startDate, String endDate) {
+        return borrowRecordMapper.findPageByUserId((page - 1) * pageSize, pageSize, userId, status, startDate, endDate);
+    }
+
+    public long countByUserIdWithFilters(Integer userId, String status, String startDate, String endDate) {
+        return borrowRecordMapper.countByUserIdWithFilters(userId, status, startDate, endDate);
     }
 
     public List<BorrowRecord> findAll() {

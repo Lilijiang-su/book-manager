@@ -12,6 +12,7 @@ public interface BookMapper {
     List<Book> findAll();
     List<Book> search(@Param("keyword") String keyword);
     List<Book> findByCategoryId(@Param("categoryId") Integer categoryId);
+    long countByCategoryId(@Param("categoryId") Integer categoryId);
     List<Book> findWithFilters(@Param("keyword") String keyword,
                                @Param("categoryId") Integer categoryId,
                                @Param("stockStatus") String stockStatus,

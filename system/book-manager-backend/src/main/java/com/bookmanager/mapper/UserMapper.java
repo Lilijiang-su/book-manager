@@ -20,6 +20,7 @@ public interface UserMapper {
     int update(User user);
     int updateStatus(@Param("id") Integer id, @Param("status") Integer status);
     int updateAvatar(@Param("id") Integer id, @Param("avatar") String avatar);
+    int updatePassword(@Param("id") Integer id, @Param("password") String password);
     int deleteById(@Param("id") Integer id);
     int batchDelete(@Param("ids") List<Integer> ids);
 }

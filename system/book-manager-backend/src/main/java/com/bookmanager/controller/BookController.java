@@ -4,6 +4,7 @@ import com.bookmanager.common.PageResult;
 import com.bookmanager.common.Result;
 import com.bookmanager.entity.Book;
 import com.bookmanager.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,13 +58,13 @@ public class BookController {
     }
 
     @PostMapping("/add")
-    public Result<?> add(@RequestBody Book book) {
+    public Result<?> add(@Valid @RequestBody Book book) {
         bookService.insert(book);
         return Result.success("添加成功");
     }
 
     @PutMapping("/update")
-    public Result<?> update(@RequestBody Book book) {
+    public Result<?> update(@Valid @RequestBody Book book) {
         bookService.update(book);
         return Result.success("更新成功");
     }

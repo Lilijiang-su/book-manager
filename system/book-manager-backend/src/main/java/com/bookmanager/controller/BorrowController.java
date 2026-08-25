@@ -3,10 +3,13 @@ package com.bookmanager.controller;
 import com.bookmanager.common.JwtUtil;
 import com.bookmanager.common.PageResult;
 import com.bookmanager.common.Result;
+import com.bookmanager.entity.BorrowRecord;
 import com.bookmanager.service.BorrowService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/borrow")
@@ -27,8 +30,8 @@ public class BorrowController {
     }
 
     @PostMapping("/return/{id}")
-    public Result<?> returnBook(@PathVariable Integer id) {
-        borrowService.returnBook(id);
+    public Result<?> returnBook(@PathVariable Integer id, HttpServletRequest request) {
+        borrowService.returnBook(id, getCurrentRole(request), getCurrentUserId(request));
         return Result.success("还书成功");
     }
 
@@ -36,11 +39,18 @@ public class BorrowController {
     public Result<?> list(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
-        if (status == null && startDate == null && endDate == null) {
-            return Result.success(borrowService.findAll());
+            @RequestParam(required = false) String endDate,
+            HttpServletRequest request) {
+        // 普通用户只能看自己的记录，管理员可看全部
+        if (isAdmin(request)) {
+            if (status == null && startDate == null && endDate == null) {
+                return Result.success(borrowService.findAll());
+            }
+            return Result.success(borrowService.findWithFilters(status, startDate, endDate));
         }
-        return Result.success(borrowService.findWithFilters(status, startDate, endDate));
+        Integer userId = getCurrentUserId(request);
+        List<BorrowRecord> records = borrowService.findByUserIdAndFilters(userId, status, startDate, endDate);
+        return Result.success(records);
     }
 
     @GetMapping("/page")
@@ -49,9 +59,16 @@ public class BorrowController {
             @RequestParam(defaultValue = "20") int pageSize,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
-        var records = borrowService.findPage(page, pageSize, status, startDate, endDate);
-        long total = borrowService.countWithFilters(status, startDate, endDate);
+            @RequestParam(required = false) String endDate,
+            HttpServletRequest request) {
+        if (isAdmin(request)) {
+            var records = borrowService.findPage(page, pageSize, status, startDate, endDate);
+            long total = borrowService.countWithFilters(status, startDate, endDate);
+            return Result.success(new PageResult<>(records, total, page, pageSize));
+        }
+        Integer userId = getCurrentUserId(request);
+        var records = borrowService.findPageByUserId(userId, page, pageSize, status, startDate, endDate);
+        long total = borrowService.countByUserIdWithFilters(userId, status, startDate, endDate);
         return Result.success(new PageResult<>(records, total, page, pageSize));
     }
 
@@ -63,7 +80,23 @@ public class BorrowController {
     }
 
     @GetMapping("/status/{status}")
-    public Result<?> byStatus(@PathVariable String status) {
-        return Result.success(borrowService.findByStatus(status));
+    public Result<?> byStatus(@PathVariable String status, HttpServletRequest request) {
+        if (isAdmin(request)) {
+            return Result.success(borrowService.findByStatus(status));
+        }
+        Integer userId = getCurrentUserId(request);
+        return Result.success(borrowService.findByUserIdAndStatus(userId, status));
+    }
+
+    private boolean isAdmin(HttpServletRequest request) {
+        return "admin".equals(request.getAttribute("role"));
+    }
+
+    private Integer getCurrentUserId(HttpServletRequest request) {
+        return (Integer) request.getAttribute("userId");
+    }
+
+    private String getCurrentRole(HttpServletRequest request) {
+        return (String) request.getAttribute("role");
     }
 }

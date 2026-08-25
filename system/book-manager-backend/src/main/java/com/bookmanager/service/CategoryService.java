@@ -1,6 +1,7 @@
 package com.bookmanager.service;
 
 import com.bookmanager.entity.Category;
+import com.bookmanager.mapper.BookMapper;
 import com.bookmanager.mapper.CategoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class CategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private BookMapper bookMapper;
 
     @Autowired
     private AuditLogService auditLogService;
@@ -83,11 +87,38 @@ public class CategoryService {
 
     public void deleteById(Integer id) {
         Category c = categoryMapper.findById(id);
+        if (c == null) {
+            throw new RuntimeException("分类不存在");
+        }
+        // 检查是否有子分类
+        List<Category> children = categoryMapper.findByParentId(id);
+        if (children != null && !children.isEmpty()) {
+            throw new RuntimeException("该分类下存在子分类，无法删除");
+        }
+        // 检查是否有关联图书
+        long bookCount = bookMapper.countByCategoryId(id);
+        if (bookCount > 0) {
+            throw new RuntimeException("该分类下存在 " + bookCount + " 本图书，无法删除");
+        }
         categoryMapper.deleteById(id);
-        if (c != null) auditLog(id, "DELETE", "CATEGORY", "删除分类「" + c.getName() + "」");
+        auditLog(id, "DELETE", "CATEGORY", "删除分类「" + c.getName() + "」");
     }
 
     public void batchDelete(List<Integer> ids) {
+        for (Integer id : ids) {
+            Category c = categoryMapper.findById(id);
+            if (c == null) {
+                throw new RuntimeException("分类不存在: id=" + id);
+            }
+            List<Category> children = categoryMapper.findByParentId(id);
+            if (children != null && !children.isEmpty()) {
+                throw new RuntimeException("分类「" + c.getName() + "」下存在子分类，无法删除");
+            }
+            long bookCount = bookMapper.countByCategoryId(id);
+            if (bookCount > 0) {
+                throw new RuntimeException("分类「" + c.getName() + "」下存在 " + bookCount + " 本图书，无法删除");
+            }
+        }
         categoryMapper.batchDelete(ids);
         auditLog(null, "DELETE", "CATEGORY", "批量删除 " + ids.size() + " 个分类");
     }

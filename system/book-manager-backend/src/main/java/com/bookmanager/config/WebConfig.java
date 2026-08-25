@@ -15,24 +15,28 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private JwtInterceptor jwtInterceptor;
 
+    /**
+     * 无需登录即可访问的公开接口（仅限只读/认证/注册）。
+     */
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/api/user/login",
             "/api/user/register",
+            // 图书只读接口
             "/api/book/list",
+            "/api/book/page",
             "/api/book/search",
-            "/api/book/**",
+            "/api/book/category/*",
+            // 分类只读接口
             "/api/category/list",
             "/api/category/tree",
-            "/api/category/enabled",
-            "/api/category/**",
-            "/api/fine-rule",
-            "/api/notice/**"
+            "/api/category/enabled"
     );
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
+                // 仅允许前端开发服务器跨域（生产环境应替换为前端实际域名）
+                .allowedOriginPatterns("http://localhost:5173", "http://127.0.0.1:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

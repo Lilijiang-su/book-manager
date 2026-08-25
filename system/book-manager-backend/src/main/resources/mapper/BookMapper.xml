@@ -51,6 +51,10 @@
         WHERE b.category_id = #{categoryId}
     </select>
 
+    <select id="countByCategoryId" resultType="long">
+        SELECT COUNT(*) FROM book WHERE category_id = #{categoryId}
+    </select>
+
     <select id="findWithFilters" resultMap="BaseResultMap">
         SELECT b.*, c.name as category_name
         FROM book b
