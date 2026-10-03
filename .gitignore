@@ -25,3 +25,6 @@ Thumbs.db
 
 # Claude
 .claude/
+
+# 部署密钥（仅提交 .env.example 模板）
+system/.env

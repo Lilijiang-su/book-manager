@@ -92,8 +92,8 @@ CREATE TABLE IF NOT EXISTS `fine_rule` (
 
 -- 默认用户
 INSERT IGNORE INTO `user` (`username`, `password`, `name`, `role`, `status`) VALUES
-('admin', 'admin123', '系统管理员', 'admin', 1),
-('zhangsan', '123456', '张三', 'user', 1);
+('admin', '$2a$10$4TCNVbqC6F43b0Y9.9ZSguaY3eR8kgFf7KiQIlAlqSp77t4GNbYWm', '系统管理员', 'admin', 1),
+('zhangsan', '$2a$10$hV8igHJ4MWE0sUMsOcF.2O58uQUyH2MGcWF0dGlKnsV06NAK6Co.q', '张三', 'user', 1);
 
 -- 图书分类
 INSERT IGNORE INTO `category` (`id`, `name`, `description`, `sort_order`, `status`) VALUES

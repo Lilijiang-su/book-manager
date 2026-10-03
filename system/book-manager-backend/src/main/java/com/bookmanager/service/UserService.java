@@ -1,6 +1,7 @@
 package com.bookmanager.service;
 
 import com.bookmanager.common.JwtUtil;
+import com.bookmanager.common.PasswordUtil;
 import com.bookmanager.dto.LoginDTO;
 import com.bookmanager.dto.RegisterDTO;
 import com.bookmanager.entity.User;
@@ -31,7 +32,7 @@ public class UserService {
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
-        if (!user.getPassword().equals(loginDTO.getPassword())) {
+        if (!PasswordUtil.matches(loginDTO.getPassword(), user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
         if (user.getStatus() == 0) {
@@ -40,6 +41,7 @@ public class UserService {
         String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
+        user.setPassword(null);
         result.put("user", user);
         return result;
     }
@@ -50,7 +52,7 @@ public class UserService {
         }
         User user = new User();
         user.setUsername(registerDTO.getUsername());
-        user.setPassword(registerDTO.getPassword());
+        user.setPassword(PasswordUtil.hash(registerDTO.getPassword()));
         user.setName(registerDTO.getName());
         user.setPhone(registerDTO.getPhone());
         user.setEmail(registerDTO.getEmail());
@@ -60,7 +62,11 @@ public class UserService {
     }
 
     public User findById(Integer id) {
-        return userMapper.findById(id);
+        User user = userMapper.findById(id);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return user;
     }
 
     public List<User> findAll() {
